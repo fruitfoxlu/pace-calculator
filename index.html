@@ -11,13 +11,13 @@
   <meta name="robots" content="index,follow" />
 
   <!-- SEO: Canonical (replace with your real URL) -->
-  <link rel="canonical" href="https://YOUR-SITE-URL/" />
+ <link rel="canonical" href="https://fruitfoxlu.github.io/pace-calculator/" /> 
 
   <!-- Optional but helpful: Open Graph / Twitter (replace URL) -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Marathon Pace Calculator – Convert Pace, Time & Distance" />
   <meta property="og:description" content="Enter any two values (pace, time, distance) and calculate the third. Supports min/km, min/mile, km/h, mph. Mobile-friendly." />
-  <meta property="og:url" content="https://YOUR-SITE-URL/" />
+  <meta property="og:url" content="https://fruitfoxlu.github.io/pace-calculator/" />
   <meta name="twitter:card" content="summary" />
 
   <!-- Structured data: WebApplication (replace URL) -->
@@ -29,7 +29,7 @@
     "description": "Free pace calculator to convert pace, time, and distance for running, walking, and cycling. Supports min/km, min/mile, km/h, and mph.",
     "applicationCategory": "SportsApplication",
     "operatingSystem": "All",
-    "url": "https://YOUR-SITE-URL/",
+    "url": "https://fruitfoxlu.github.io/pace-calculator/",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
@@ -172,8 +172,9 @@
           <div class="row" style="margin-top:12px;">
             <label for="time">Time</label>
             <input id="time" class="mono" placeholder="hh:mm:ss (e.g., 3:25:00)"
-                   inputmode="numeric"
-                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+       inputmode="text"
+       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+
             <button type="button" class="xbtn" id="clearTime" title="Clear Time">X</button>
             <div class="staticUnit">hh:mm:ss</div>
           </div>
@@ -365,7 +366,7 @@
       paceUnitEl.querySelector('option[value="minPerKm"]').disabled = false;
       paceUnitEl.querySelector('option[value="minPerMi"]').disabled = false;
       paceEl.placeholder = "mm:ss (e.g., 4:52)";
-      paceEl.setAttribute("inputmode", "numeric");
+      paceEl.setAttribute("inputmode", "text");
     } else {
       paceLabelEl.textContent = "Speed";
       if (!["kmph", "mph"].includes(paceUnitEl.value)) paceUnitEl.value = "kmph";
