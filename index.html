@@ -7,48 +7,87 @@
   <style>
     :root { --fg:#111; --muted:#666; --bg:#fff; --card:#f7f7f7; --line:#e5e5e5; }
     body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-           color: var(--fg); background: var(--bg); margin: 0; padding: 24px; }
+           color: var(--fg); background: var(--bg); margin: 0; padding: 18px; }
     .wrap { max-width: 920px; margin: 0 auto; }
-    h1 { font-size: 20px; margin: 0 0 14px; }
+    h1 { font-size: 20px; margin: 0 0 14px; line-height: 1.2; }
     .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
     @media (min-width: 860px) { .grid { grid-template-columns: 1fr 1fr; } }
 
-    /* label | input | clear | unit */
-    .row { display: grid; grid-template-columns: 120px 1fr 44px 130px; gap: 10px; align-items: center; }
-    .row label { font-weight: 600; }
+    /* Desktop row: label | input | X | unit */
+    .row {
+      display: grid;
+      grid-template-columns: 120px 1fr 52px 140px;
+      gap: 10px;
+      align-items: center;
+    }
+    .row label { font-weight: 650; }
+
+    /* Mobile: stack label, then input, then actions */
+    @media (max-width: 520px) {
+      .row {
+        grid-template-columns: 1fr 52px 140px;
+        grid-template-areas:
+          "label label label"
+          "input input input"
+          "x unit unit";
+        gap: 8px;
+        align-items: stretch;
+      }
+      .row label { grid-area: label; }
+      .row input { grid-area: input; }
+      .row .xbtn { grid-area: x; }
+      .row select, .row .staticUnit { grid-area: unit; }
+      h1 { font-size: 18px; }
+      body { padding: 14px; }
+    }
 
     input, select, button {
-      font-size: 14px; padding: 10px 10px; border: 1px solid var(--line);
-      border-radius: 10px; background: #fff; color: var(--fg);
+      font-size: 16px; /* prevents iOS zoom */
+      padding: 12px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--fg);
     }
     input { width: 100%; box-sizing: border-box; }
 
     .xbtn {
-      padding: 10px 0;
+      padding: 12px 0;
       text-align: center;
-      font-weight: 700;
+      font-weight: 800;
       background: #fff;
       border: 1px solid var(--line);
       cursor: pointer;
       user-select: none;
+      min-height: 44px; /* touch target */
     }
     .xbtn:hover { background: #f0f0f0; }
 
-    .hint { color: var(--muted); font-size: 12px; line-height: 1.4; margin-top: 8px; }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; margin-top: 8px; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
     button.primary { cursor: pointer; background: #111; color: #fff; border: 1px solid #111; }
     button.secondary { cursor: pointer; background: #fff; color: #111; border: 1px solid var(--line); }
     .mini { font-size: 12px; color: var(--muted); }
-    .status { margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+    .status { margin-top: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
     .status.ok { border-color: #cfead6; }
     .status.warn { border-color: #ffe5b4; }
+
     .presets { display:flex; gap:8px; flex-wrap:wrap; }
     .presets button { background:#fff; color:#111; border:1px solid var(--line); cursor:pointer; }
-    .split { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .radio { display:flex; gap:12px; align-items:center; }
+
+    .split { display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+    .radio { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
     .radio label { font-weight: 500; }
+
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .staticUnit { display:flex; align-items:center; padding-left: 6px; color: var(--muted); font-size: 14px; }
+
+    /* Make buttons full-width on very small screens */
+    @media (max-width: 380px) {
+      .actions button { flex: 1 1 auto; width: 100%; }
+      .presets button { flex: 1 1 auto; }
+    }
   </style>
 </head>
 <body>
@@ -61,14 +100,15 @@
           <label><input type="radio" name="mode" value="pace" checked> Pace (min / unit)</label>
           <label><input type="radio" name="mode" value="speed"> Speed (unit / hour)</label>
         </div>
-        <div class="mini">How to use: click X to clear the field you want to solve for, fill the other two, then click Calculate.</div>
+        <div class="mini">Tip: Click X to clear the field you want to solve for, fill the other two, then click Calculate.</div>
       </div>
 
       <div class="grid" style="margin-top:14px;">
         <div>
           <div class="row">
-            <label>Distance</label>
-            <input id="distance" inputmode="decimal" placeholder="e.g., 42.195" />
+            <label for="distance">Distance</label>
+            <input id="distance" inputmode="decimal" placeholder="e.g., 42.195"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <button type="button" class="xbtn" id="clearDistance" title="Clear Distance">X</button>
             <select id="distUnit" aria-label="Distance unit">
               <option value="km" selected>km</option>
@@ -77,17 +117,20 @@
           </div>
           <div class="hint">Marathon: 42.195 km (or 26.2188 miles).</div>
 
-          <div class="row" style="margin-top:10px;">
-            <label>Time</label>
-            <input id="time" class="mono" placeholder="hh:mm:ss (e.g., 3:25:00)" />
+          <div class="row" style="margin-top:12px;">
+            <label for="time">Time</label>
+            <input id="time" class="mono" placeholder="hh:mm:ss (e.g., 3:25:00)"
+                   inputmode="numeric"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <button type="button" class="xbtn" id="clearTime" title="Clear Time">X</button>
-            <div class="mini" style="padding-left:4px;">hh:mm:ss</div>
+            <div class="staticUnit">hh:mm:ss</div>
           </div>
           <div class="hint">Accepted: hh:mm:ss, mm:ss, or seconds (e.g., 90 means 90 seconds).</div>
 
-          <div class="row" style="margin-top:10px;">
+          <div class="row" style="margin-top:12px;">
             <label><span id="paceLabel">Pace</span></label>
-            <input id="pace" class="mono" placeholder="Pace: mm:ss (e.g., 4:52) / Speed: 12.5" />
+            <input id="pace" class="mono" placeholder="Pace: mm:ss (e.g., 4:52) / Speed: 12.5"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <button type="button" class="xbtn" id="clearPace" title="Clear Pace/Speed">X</button>
             <select id="paceUnit" aria-label="Pace or speed unit">
               <option value="minPerKm" selected>min/km</option>
@@ -155,13 +198,11 @@
     return Number.isFinite(x) && x > 0 ? x : null;
   }
 
-  // Parse time string: "hh:mm:ss" or "mm:ss" or "ss"
   function parseTimeToSeconds(s) {
     if (!s) return null;
     const t = String(s).trim();
     if (!t) return null;
 
-    // raw seconds like "90"
     if (/^\d+(\.\d+)?$/.test(t)) {
       const sec = Number(t);
       return Number.isFinite(sec) && sec > 0 ? sec : null;
@@ -191,13 +232,11 @@
     return `${hh}:${pad(mm)}:${pad(ss)}`;
   }
 
-  // Pace format "mm:ss" -> seconds per unit; also accept number minutes like "4.5"
   function parsePaceToSecondsPerUnit(s) {
     if (!s) return null;
     const t = String(s).trim();
     if (!t) return null;
 
-    // "mm:ss"
     if (/^\d+:\d+(\.\d+)?$/.test(t)) {
       const [m, sec] = t.split(":");
       const mm = Number(m), ss = Number(sec);
@@ -206,7 +245,6 @@
       return total > 0 ? total : null;
     }
 
-    // minutes as number e.g., 4.5 -> 270 sec
     if (/^\d+(\.\d+)?$/.test(t)) {
       const minutes = Number(t);
       const total = minutes * 60;
@@ -227,14 +265,13 @@
     return modeRadios.find(r => r.checked)?.value ?? "pace";
   }
 
-  // Convert distance to kilometers as internal canonical
   function toKm(distance, unit) {
     if (unit === "km") return distance;
-    return distance * 1.609344; // miles -> km
+    return distance * 1.609344;
   }
   function fromKm(km, unit) {
     if (unit === "km") return km;
-    return km / 1.609344; // km -> miles
+    return km / 1.609344;
   }
 
   function syncUnitsForMode() {
@@ -247,6 +284,7 @@
       paceUnitEl.querySelector('option[value="minPerKm"]').disabled = false;
       paceUnitEl.querySelector('option[value="minPerMi"]').disabled = false;
       paceEl.placeholder = "mm:ss (e.g., 4:52)";
+      paceEl.setAttribute("inputmode", "numeric");
     } else {
       paceLabelEl.textContent = "Speed";
       if (!["kmph", "mph"].includes(paceUnitEl.value)) paceUnitEl.value = "kmph";
@@ -255,6 +293,7 @@
       paceUnitEl.querySelector('option[value="minPerKm"]').disabled = true;
       paceUnitEl.querySelector('option[value="minPerMi"]').disabled = true;
       paceEl.placeholder = "number (e.g., 28.5)";
+      paceEl.setAttribute("inputmode", "decimal");
     }
   }
 
@@ -299,10 +338,9 @@
       let paceSecPerKm = null;
       if (paceSecondsPerUnit != null) {
         if (paceUnit === "minPerKm") paceSecPerKm = paceSecondsPerUnit;
-        else if (paceUnit === "minPerMi") paceSecPerKm = paceSecondsPerUnit / 1.609344; // sec/mi -> sec/km
+        else if (paceUnit === "minPerMi") paceSecPerKm = paceSecondsPerUnit / 1.609344;
       }
 
-      // Missing distance
       if (!hasDist && hasTime && paceSecPerKm != null) {
         distKm = timeSec / paceSecPerKm;
         const outDist = fromKm(distKm, distUnit);
@@ -310,14 +348,12 @@
         setStatus("Distance computed.", "ok");
         return;
       }
-      // Missing time
       if (!hasTime && hasDist && paceSecPerKm != null) {
         const outTime = distKm * paceSecPerKm;
         timeEl.value = formatSecondsToHMS(outTime);
         setStatus("Time computed.", "ok");
         return;
       }
-      // Missing pace
       if (!hasThird && hasDist && hasTime) {
         const secPerKm = timeSec / distKm;
         if (paceUnit === "minPerKm") paceEl.value = formatSecondsPerUnitToPace(secPerKm);
@@ -336,7 +372,6 @@
         else if (paceUnit === "mph") speedKmph = speedUnitPerHour * 1.609344;
       }
 
-      // Missing distance
       if (!hasDist && hasTime && speedKmph != null) {
         const hours = timeSec / 3600;
         distKm = speedKmph * hours;
@@ -345,14 +380,12 @@
         setStatus("Distance computed.", "ok");
         return;
       }
-      // Missing time
       if (!hasTime && hasDist && speedKmph != null) {
         const hours = distKm / speedKmph;
         timeEl.value = formatSecondsToHMS(hours * 3600);
         setStatus("Time computed.", "ok");
         return;
       }
-      // Missing speed
       if (!hasThird && hasDist && hasTime) {
         const hours = timeSec / 3600;
         const kmph = distKm / hours;
@@ -374,7 +407,6 @@
     setStatus("Cleared. Fill any two fields, then click Calculate.", "warn");
   }
 
-  // Buttons
   el("calcBtn").addEventListener("click", calc);
   el("clearAllBtn").addEventListener("click", clearAll);
 
@@ -382,13 +414,11 @@
   el("clearTime").addEventListener("click", () => { timeEl.value = ""; setStatus("Time cleared. Fill the other two, then click Calculate.", "warn"); });
   el("clearPace").addEventListener("click", () => { paceEl.value = ""; setStatus("Pace/Speed cleared. Fill the other two, then click Calculate.", "warn"); });
 
-  // Mode change: sync units only
   modeRadios.forEach(r => r.addEventListener("change", () => {
     syncUnitsForMode();
     setStatus("Mode switched. Use X to clear the field you want to compute, then click Calculate.", "warn");
   }));
 
-  // Presets set distance only
   document.querySelectorAll(".presets button").forEach(btn => {
     btn.addEventListener("click", () => {
       const d = btn.getAttribute("data-dist");
@@ -399,14 +429,11 @@
     });
   });
 
-  // Unit change does not auto-calc
   distUnitEl.addEventListener("change", () => setStatus("Units changed. Click Calculate to compute.", "warn"));
   paceUnitEl.addEventListener("change", () => setStatus("Units changed. Click Calculate to compute.", "warn"));
 
-  // Init
   syncUnitsForMode();
 })();
 </script>
 </body>
 </html>
-
