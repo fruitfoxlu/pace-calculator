@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://fruitfoxlu.github.io/pace-calculator//sitemap.xml
+Sitemap: https://fruitfoxlu.github.io/pace-calculator/sitemap.xml
